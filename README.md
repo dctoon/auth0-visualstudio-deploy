@@ -12,8 +12,10 @@ First create a `Client` in your account with `read:connections` and `read/create
 {
   "EXTENSION_SECRET": "any-random-value-will-do",
   "SLACK_INCOMING_WEBHOOK_URL": "https://hooks.slack.com/services/...",
-  "GITLAB_BRANCH": "YOUR_BRANCH",
-  "GITLAB_TOKEN": "YOUR_TOKEN",
+  "TFS_BRANCH": "YOUR_BRANCH",
+  "TFS_TOKEN": "YOUR_TOKEN",
+  "TFS_COLLECTION": "YOUR_COLLECTION",
+  "TFS_INSTANCE": "YOUR_INSTANCE",
   "GITLAB_REPOSITORY": "YOUR_REPO",
   "AUTH0_DOMAIN": "YOUR_DOMAIN",
   "AUTH0_CLIENT_ID": "YOUR_CLIENT_SECRET",
