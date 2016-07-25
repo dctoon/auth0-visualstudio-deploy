@@ -16,14 +16,12 @@ export default (storageContext) => {
 
     // Only accept push requests.
     if (req.webhook.event !== 'git.push') {
-      console.log(`Request ignored, the '${req.webhook.event}' event is not supported.`);
       return res.status(202).json({ message: `Request ignored, the '${req.webhook.event}' event is not supported.` });
     }
 
     // Only run if there really are changes.
     hasChanges(commits, repository_id).then(changes => {
       if (!changes) {
-        console.log('Request ignored, none of the Rules or Database Connection scripts were changed.');
         return res.status(202).json({ message: 'Request ignored, none of the Rules or Database Connection scripts were changed.' });
       }
 
