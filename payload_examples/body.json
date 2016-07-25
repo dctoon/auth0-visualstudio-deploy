@@ -1,0 +1,92 @@
+{
+  "subscriptionId": "d18003ac-80cd-480d-b0bb-9b8943e78e22",
+  "notificationId": 97,
+  "id": "442fb573-9fa5-42b7-a307-7fd832b4fae5",
+  "eventType": "git.push",
+  "publisherId": "tfs",
+  "message": {
+    "text": "a.zarubin pushed updates to branch dev of MyFirstProject\r\n(https://zxan1285.visualstudio.com/_git/MyFirstProject/#version=GBdev)"
+  },
+  "detailedMessage": {
+    "text": "a.zarubin pushed 1 commit to branch dev of MyFirstProject\r\n - testing 7abe1c84 (https://zxan1285.visualstudio.com/_git/MyFirstProject/commit/7abe1c84338552628fcd4629531c36d29ab16956)"
+  },
+  "resource": {
+    "commits": [
+      {
+        "commitId": "7abe1c84338552628fcd4629531c36d29ab16956",
+        "author": {
+          "name": "Oleksandr Zarubin",
+          "email": "oleksandr.zarubin@ua.akvelon.com",
+          "date": "2016-07-25T06:54:39Z"
+        },
+        "committer": {
+          "name": "Oleksandr Zarubin",
+          "email": "oleksandr.zarubin@ua.akvelon.com",
+          "date": "2016-07-25T06:54:39Z"
+        },
+        "comment": "testing",
+        "url": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9/commits/7abe1c84338552628fcd4629531c36d29ab16956"
+      }
+    ],
+    "refUpdates": [
+      {
+        "name": "refs/heads/dev",
+        "oldObjectId": "ba8d6f926cf54aff3186f93d5702ae3c0416990d",
+        "newObjectId": "7abe1c84338552628fcd4629531c36d29ab16956"
+      }
+    ],
+    "repository": {
+      "id": "cccd3702-72d5-4a51-a671-638b8431d5f9",
+      "name": "MyFirstProject",
+      "url": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9",
+      "project": {
+        "id": "872a07de-2bf1-4c27-88ba-9eb3d7d2af6f",
+        "name": "MyFirstProject",
+        "url": "https://zxan1285.visualstudio.com/_apis/projects/872a07de-2bf1-4c27-88ba-9eb3d7d2af6f",
+        "state": "wellFormed"
+      },
+      "defaultBranch": "refs/heads/master",
+      "remoteUrl": "https://zxan1285.visualstudio.com/_git/MyFirstProject"
+    },
+    "pushedBy": {
+      "id": "9497a030-ad2c-487d-b3ff-3cf6a95ac13e",
+      "displayName": "a.zarubin",
+      "uniqueName": "a.zarubin@streamcrease.com",
+      "url": "https://zxan1285.vssps.visualstudio.com/_apis/Identities/9497a030-ad2c-487d-b3ff-3cf6a95ac13e",
+      "imageUrl": "https://zxan1285.visualstudio.com/_api/_common/identityImage?id=9497a030-ad2c-487d-b3ff-3cf6a95ac13e"
+    },
+    "pushId": 80,
+    "date": "2016-07-25T06:54:43.2012947Z",
+    "url": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9/pushes/80",
+    "_links": {
+      "self": {
+        "href": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9/pushes/80"
+      },
+      "repository": {
+        "href": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9"
+      },
+      "commits": {
+        "href": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9/pushes/80/commits"
+      },
+      "pusher": {
+        "href": "https://zxan1285.vssps.visualstudio.com/_apis/Identities/9497a030-ad2c-487d-b3ff-3cf6a95ac13e"
+      },
+      "refs": {
+        "href": "https://zxan1285.visualstudio.com/_apis/git/repositories/cccd3702-72d5-4a51-a671-638b8431d5f9/refs"
+      }
+    }
+  },
+  "resourceVersion": "1.0",
+  "resourceContainers": {
+    "collection": {
+      "id": "5f48bba7-831f-4248-ac5b-2729c3ed19a6"
+    },
+    "account": {
+      "id": "42f12269-dfa8-4c46-a4e4-32fe7d27af33"
+    },
+    "project": {
+      "id": "872a07de-2bf1-4c27-88ba-9eb3d7d2af6f"
+    }
+  },
+  "createdDate": "2016-07-25T06:54:46.608059Z"
+}
