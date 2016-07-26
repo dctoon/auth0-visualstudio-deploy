@@ -5,7 +5,7 @@
   "author": "auth0",
   "description": "This extension gives Auth0 customers the possibility to deploy Rules and Custom Database Connections from TFS.",
   "type": "application",
-  "logoUrl": "https://cdn.auth0.com/extensions/auth0-gitlab-deploy/assets/logo.svg",
+  "logoUrl": "https://cdn.auth0.com/extensions/auth0-visualstudio-deploy/assets/logo.svg",
   "initialUrlPath": "/login",
   "uninstallConfirmMessage": "Do you really want to uninstall this extension? Doing so will stop any Rules and Database Connection scripts from being deployed from TFS to Auth0.",
   "repository": "https://github.com/auth0-extensions/auth0-visualstudio-deploy",
@@ -20,7 +20,7 @@
   },
   "secrets": {
     "TFS_TYPE": {
-      "description": "Type of repository - git or tfvc",
+      "description": "Type of repository",
       "type": "select",
       "allowMultiple": false,
       "options": [

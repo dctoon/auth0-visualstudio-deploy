@@ -1,4 +1,4 @@
-# Auth0 Bitbucket Deployments
+# Auth0 TFS Deployments
 
 This extension makes it possible to deploy Rules and Database Connection scripts from Bitbucket to Auth0.
 
