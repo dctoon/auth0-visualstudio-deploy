@@ -16,7 +16,10 @@ First create a `Client` in your account with `read:connections` and `read/create
   "TFS_TOKEN": "YOUR_TOKEN",
   "TFS_COLLECTION": "YOUR_COLLECTION",
   "TFS_INSTANCE": "YOUR_INSTANCE",
-  "TFS_PROJECT": "YOUR_REPO",
+  "TFS_PROJECT": "YOUR_PROJECT",
+  "TFS_TYPE": "git or tfvc",
+  "TFS_PATH": "$/project/dev",
+  "TFS_USERNAME": "YOUR_TFS_USERNAME",
   "AUTH0_DOMAIN": "YOUR_DOMAIN",
   "AUTH0_CLIENT_ID": "YOUR_CLIENT_SECRET",
   "AUTH0_CLIENT_SECRET": "YOUR_CLIENT_ID"

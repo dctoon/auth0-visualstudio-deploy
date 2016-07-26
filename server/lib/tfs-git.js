@@ -118,14 +118,16 @@ const getCommitId = (repositoryId, branch) =>
     }
 
     try {
-      gitApi.getBranch(repositoryId, branch).then(data => {
-        if (data) {
-          return resolve(data.commit.commitId);
-        } else {
-          logger.error(`Branch '${branch}' not found`);
-          return reject(new Error(`Branch '${branch}' not found`));
-        }
-      });
+      gitApi.getBranch(repositoryId, branch)
+        .then(data => {
+          if (data) {
+            return resolve(data.commit.commitId);
+          } else {
+            logger.error(`Branch '${branch}' not found`);
+            return reject(new Error(`Branch '${branch}' not found`));
+          }
+        })
+        .catch(e => reject(e));
     } catch (e) {
       reject(e);
     }
@@ -135,13 +137,17 @@ const getCommitId = (repositoryId, branch) =>
  * Get full tree.
  */
 const getTree = (repositoryId, branch) =>
-getCommitId(repositoryId, branch).then(commitId =>
-  gitApi.getCommit(commitId, repositoryId).then(commit =>
-    gitApi.getTree(repositoryId, commit.treeId, null, null, true).then(data =>
-      data.treeEntries
-        .filter(f => f.gitObjectType === 3)
-        .filter(f => validFilesOnly(f.relativePath))
-        .map(f => ({path: f.relativePath, id: f.objectId})))));
+  new Promise((resolve, reject) => {
+    getCommitId(repositoryId, branch)
+      .then(commitId => gitApi.getCommit(commitId, repositoryId))
+      .then(commit => gitApi.getTree(repositoryId, commit.treeId, null, null, true))
+      .then(data =>
+        resolve(data.treeEntries
+          .filter(f => f.gitObjectType === 3)
+          .filter(f => validFilesOnly(f.relativePath))
+          .map(f => ({path: f.relativePath, id: f.objectId}))))
+      .catch(e => reject(e));
+  });
 
 /*
  * Download a single file.
@@ -275,35 +281,38 @@ const getDatabaseScripts = (repositoryId, branch, files) => {
  * Get a list of all changes that need to be applied to rules and database scripts.
  */
 export const getChanges = (repositoryId, branch) =>
-  getTree(repositoryId, branch)
-    .then(files => {
-      logger.debug(`Files in tree: ${JSON.stringify(files.map(file => ({name: file.path, id: file.id})), null, 2)}`);
+  new Promise((resolve, reject) => {
+    getTree(repositoryId, branch)
+      .then(files => {
+        logger.debug(`Files in tree: ${JSON.stringify(files.map(file => ({name: file.path, id: file.id})), null, 2)}`);
 
-      const promises = {
-        rules: getRules(repositoryId, branch, files),
-        databases: getDatabaseScripts(repositoryId, branch, files)
-      };
+        const promises = {
+          rules: getRules(repositoryId, branch, files),
+          databases: getDatabaseScripts(repositoryId, branch, files)
+        };
 
-      return Promise.props(promises)
-        .then((result) => ({
-          rules: result.rules,
-          databases: result.databases
-        }));
-    });
-
+        return Promise.props(promises)
+          .then(result => resolve({
+            rules: result.rules,
+            databases: result.databases
+          }));
+      })
+      .catch(e => reject(e));
+  });
 
 /*
  * Get a repository id by name.
  */
 export const getRepositoryId = (name) =>
-  gitApi.getRepositories().then(repositories => {
-    if (!repositories)
-      return null;
+  gitApi.getRepositories()
+    .then(repositories => {
+      if (!repositories)
+        return null;
 
-    const repository = repositories.filter(f => f.name === name);
+      const repository = repositories.filter(f => f.name === name);
 
-    if (repository[0] && repository[0].id)
-      return repository[0].id;
-    else
-      return null;
-  });
+      if (repository[0] && repository[0].id)
+        return repository[0].id;
+      else
+        return null;
+    });

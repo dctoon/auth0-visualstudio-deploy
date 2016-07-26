@@ -7,6 +7,7 @@ import hooks from './hooks';
 import webhooks from './webhooks';
 
 import config from '../lib/config';
+import deploy from '../lib/deploy';
 import manualDeploy from '../lib/manualDeploy';
 import { readStorage } from '../lib/storage';
 import { dashboardAdmins, requireUser } from '../lib/middlewares';
@@ -32,10 +33,22 @@ export default (storageContext) => {
       .then(data => res.json(_.sortByOrder(data.deployments || [], [ 'date' ], [ false ])))
       .catch(next)
   );
+
   routes.post('/api/deployments', requireUser, (req, res, next) => {
-    manualDeploy(storageContext, 'manual', config('TFS_BRANCH'), config('TFS_PROJECT'), (req.body && req.body.sha) || config('TFS_BRANCH'), req.user.sub)
-      .then(stats => res.json(stats))
-      .catch(next);
+    if (config('TFS_TYPE') === 'git') {
+      manualDeploy(storageContext, 'manual', config('TFS_BRANCH'), config('TFS_PROJECT'), (req.body && req.body.sha) || config('TFS_BRANCH'), req.user.sub)
+        .then(stats => res.json(stats))
+        .catch(next);
+    }
+    else if (config('TFS_TYPE') === 'tfvc') {
+      deploy(storageContext, 'manual', config('TFS_PROJECT'), config('TFS_PATH'), config('TFS_PROJECT'), (req.body && req.body.sha) || 'latest', req.user.sub)
+        .then(stats => res.json(stats))
+        .catch(next);
+    }
+    else {
+      res.status(400).json({ message: 'Incorrect TFS_TYPE.' });
+    }
   });
+
   return routes;
 };

@@ -19,24 +19,53 @@
     "scopes": "read:connections update:connections read:rules create:rules update:rules delete:rules delete:clients"
   },
   "secrets": {
+    "TFS_TYPE": {
+      "description": "Type of repository - git or tfvc",
+      "type": "select",
+      "allowMultiple": false,
+      "options": [
+        {
+          "value": "git",
+          "text": "Git"
+        },
+        {
+          "value": "tfvc",
+          "text": "TFVC"
+        }
+      ]
+    },
     "TFS_PROJECT": {
       "example": "MyFirstProject",
-      "description": "The repository from which you want to deploy rules and database scripts",
+      "description": "The project from which you want to deploy rules and database scripts",
       "required": true
     },
     "TFS_BRANCH": {
       "description": "The branch we should monitor for commits",
       "default": "master",
-      "required": true
+      "required": true,
+      "visibleIf": {
+        "TFS_TYPE": "git"
+      }
+    },
+    "TFS_PATH": {
+      "example": "$/myproject/somepath",
+      "description": "The path we should monitor for commits",
+      "visibleIf": {
+        "TFS_TYPE": "tfvc"
+      }
     },
     "TFS_INSTANCE": {
       "example": "INSTANCE.visualstudio.com",
-      "description": "Your visualstudio instance",
+      "description": "Your visual studio instance (without .visualstudio.com)",
       "required": true
     },
     "TFS_COLLECTION": {
       "description": "Your visualstudio collection",
       "default": "DefaultCollection",
+      "required": true
+    },
+    "TFS_USERNAME": {
+      "description": "Your TFS username",
       "required": true
     },
     "TFS_TOKEN": {

@@ -3,7 +3,8 @@ import logger from '../lib/logger';
 import * as auth0 from '../lib/auth0';
 
 import { pushToSlack } from './slack';
-import { getChanges } from './tfs';
+import { getChanges as getGitChanges } from './tfs-git';
+import { getChanges as getTfvcChanges } from './tfs-tfvc';
 import { appendProgress } from './storage';
 import { getForClient } from './managementApiClient';
 
@@ -31,9 +32,12 @@ const trackProgress = (id, branch, repository, sha, user) => {
   };
 };
 
-
+// export default (storageContext, id, project, sha, user) => {
+//   const progress = trackProgress(id, config('TFS_PATH'), project, sha, user);
 export default (storageContext, id, repositoryId, branch, repository, sha, user) => {
   const progress = trackProgress(id, branch, repository, sha, user);
+  const getChanges = config('TFS_TYPE') === 'git' ? getGitChanges : getTfvcChanges;
+
   if (id === 'manual') {
     progress.log('Manual deployment triggered.');
   } else {
@@ -41,6 +45,7 @@ export default (storageContext, id, repositoryId, branch, repository, sha, user)
   }
 
   progress.log('Loading TFS tree...');
+
   return getChanges(repositoryId, sha).then(context => {
       progress.log(`Assets: ${JSON.stringify({ id, user, ...context }, null, 2)}`);
       progress.log(`Getting access token for ${config('AUTH0_CLIENT_ID')}/${config('AUTH0_DOMAIN')}`);
