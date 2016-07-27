@@ -77,15 +77,14 @@ export const hasChanges = (commits, repoId) =>
       });
 
       Promise.all(promisses)
-        .then(() => {
-          return resolve(_.chain(files)
-              .map(file => file.item.path)
-              .flattenDeep()
-              .uniq()
-              .filter(f => validFilesOnly(f.slice(1)))
-              .value()
-              .length > 0);
-        });
+        .then(() => resolve(_.chain(files)
+            .map(file => file.item.path)
+            .flattenDeep()
+            .uniq()
+            .filter(f => validFilesOnly(f.slice(1)))
+            .value()
+            .length > 0))
+        .catch(e => reject(e));
     }
     catch (e) {
       return reject(e);

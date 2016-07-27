@@ -32,8 +32,6 @@ const trackProgress = (id, branch, repository, sha, user) => {
   };
 };
 
-// export default (storageContext, id, project, sha, user) => {
-//   const progress = trackProgress(id, config('TFS_PATH'), project, sha, user);
 export default (storageContext, id, repositoryId, branch, repository, sha, user) => {
   const progress = trackProgress(id, branch, repository, sha, user);
   const getChanges = config('TFS_TYPE') === 'git' ? getGitChanges : getTfvcChanges;
