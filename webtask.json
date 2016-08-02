@@ -23,6 +23,7 @@
       "description": "Type of repository",
       "type": "select",
       "allowMultiple": false,
+      "default": "git",
       "options": [
         {
           "value": "git",

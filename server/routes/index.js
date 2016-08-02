@@ -23,13 +23,12 @@ export default (storageContext) => {
   routes.get('/api/config', requireUser, (req, res) => {
     res.json({
       secret: config('EXTENSION_SECRET'),
-      type: config('TFS_TYPE'),
-      path: config('TFS_PATH'),
-      branch: config('TFS_BRANCH'),
+      branch: config('TFS_BRANCH') || config('TFS_PATH'),
       prefix: config('TFS_INSTANCE'),
       repository: config('TFS_PROJECT')
     });
   });
+
   routes.get('/api/deployments', requireUser, (req, res, next) =>
     readStorage(storageContext)
       .then(data => res.json(_.sortByOrder(data.deployments || [], [ 'date' ], [ false ])))

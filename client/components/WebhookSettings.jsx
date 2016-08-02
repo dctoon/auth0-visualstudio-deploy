@@ -25,7 +25,7 @@ export default class WebhookSettings extends Component {
     return (
       <div>
         <h5>Webhook Settings</h5>
-        <p>A webhook has to be created in <strong><a href={`https://${prefix}.visualstudio.com/${repository}/_admin/_apps/hub/ms.vss-servicehooks-web.manageServiceHooks-project`}>{repository}</a></strong> with the following settings to enable deployments from TFS (<strong>{branch}</strong> branch).</p>
+        <p>A webhook has to be created in <strong><a href={`https://${prefix}.visualstudio.com/${repository}/_admin/_apps/hub/ms.vss-servicehooks-web.manageServiceHooks-project`}>{repository}</a></strong> with the following settings to enable deployments from TFS (<strong>{branch}</strong>).</p>
         <form className="form-horizontal col-xs-9">
           <div className="form-group">
             <label className="col-xs-2 control-label">Payload URL</label>
