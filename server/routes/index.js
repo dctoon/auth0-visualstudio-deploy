@@ -23,6 +23,8 @@ export default (storageContext) => {
   routes.get('/api/config', requireUser, (req, res) => {
     res.json({
       secret: config('EXTENSION_SECRET'),
+      type: config('TFS_TYPE'),
+      path: config('TFS_PATH'),
       branch: config('TFS_BRANCH'),
       prefix: config('TFS_INSTANCE'),
       repository: config('TFS_PROJECT')
