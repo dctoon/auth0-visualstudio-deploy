@@ -34,12 +34,6 @@ export default class WebhookSettings extends Component {
             </div>
           </div>
           <div className="form-group">
-            <label className="col-xs-2 control-label">Content Type</label>
-            <div className="col-xs-9">
-              <input type="text" readOnly="readonly" className="form-control" value={contentType} />
-            </div>
-          </div>
-          <div className="form-group">
             <label className="col-xs-2 control-label">HTTP headers</label>
             <div className="col-xs-9">
               <input type="text" readOnly="readonly" className="form-control" value={`x-hook-secret:${secret}`} />
