@@ -27,10 +27,11 @@ export default (storageContext) => {
         return res.status(202).json({ message: 'Request ignored, none of the Rules or Database Connection scripts were changed.' });
       }
 
+      // Send response ASAP to prevent extra requests.
+      res.status(202).json({ message: `Request accepted, deployment started.` });
+
       // Deploy the changes.
-      return deploy(storageContext, id, repository_id, branch, repository, sha, user)
-        .then(stats => res.status(200).json(stats))
-        .catch(() => res.status(200).json());
+      return deploy(storageContext, id, repository_id, branch, repository, sha, user);
     });
   });
 
@@ -48,12 +49,11 @@ export default (storageContext) => {
         return res.status(202).json({ message: 'Request ignored, none of the Rules or Database Connection scripts were changed.' });
       }
 
+      // Send response ASAP to prevent extra requests.
+      res.status(202).json({ message: `Request accepted, deployment started.` });
+
       // Deploy the changes.
-      return deploy(storageContext, id, config('TFS_PROJECT'), config('TFS_PATH'), config('TFS_PROJECT'), changeset, user)
-        .then(stats => res.status(200).json(stats))
-        .catch(() => res.status(200).json());
-        // .then(stats => res.status(200).json(stats))
-        // .catch(next);
+      return deploy(storageContext, id, config('TFS_PROJECT'), config('TFS_PATH'), config('TFS_PROJECT'), changeset, user);
     });
   });
 

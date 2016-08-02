@@ -26,7 +26,8 @@
       "options": [
         {
           "value": "git",
-          "text": "Git"
+          "text": "Git",
+          "selected": true
         },
         {
           "value": "tfvc",
