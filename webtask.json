@@ -1,5 +1,5 @@
 {
-  "title": "TFS Deployments",
+  "title": "Visual Studio Team Services Deployments",
   "name": "auth0-visualstudio-deploy",
   "version": "0.1.0",
   "author": "auth0",
@@ -23,7 +23,6 @@
       "description": "Type of repository",
       "type": "select",
       "allowMultiple": false,
-      "default": "git",
       "options": [
         {
           "value": "git",
