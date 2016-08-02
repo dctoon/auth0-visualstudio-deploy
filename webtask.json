@@ -22,12 +22,16 @@
     "TFS_TYPE": {
       "description": "Type of repository",
       "type": "select",
+      "required": true,
       "allowMultiple": false,
       "options": [
         {
+          "text": "Select repository type",
+          "disabled": true
+        },
+        {
           "value": "git",
-          "text": "Git",
-          "selected": true
+          "text": "Git"
         },
         {
           "value": "tfvc",
