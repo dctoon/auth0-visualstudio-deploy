@@ -23,12 +23,9 @@
       "description": "Type of repository",
       "type": "select",
       "required": true,
+      "default": "git",
       "allowMultiple": false,
       "options": [
-        {
-          "text": "Select repository type",
-          "disabled": true
-        },
         {
           "value": "git",
           "text": "Git"
