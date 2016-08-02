@@ -19,9 +19,14 @@ const getServer = (req, res) => {
         HOSTING_ENV: 'webtask',
         CLIENT_VERSION: process.env.CLIENT_VERSION,
         SLACK_INCOMING_WEBHOOK_URL: req.webtaskContext.secrets.SLACK_INCOMING_WEBHOOK_URL,
-        GITLAB_BRANCH: req.webtaskContext.secrets.GITLAB_BRANCH,
-        GITLAB_REPOSITORY: req.webtaskContext.secrets.GITLAB_REPOSITORY,
-        GITLAB_TOKEN: req.webtaskContext.secrets.GITLAB_TOKEN,
+        TFS_TYPE: req.webtaskContext.secrets.TFS_TYPE,
+        TFS_BRANCH: req.webtaskContext.secrets.TFS_BRANCH,
+        TFS_PATH: req.webtaskContext.secrets.TFS_PATH,
+        TFS_PROJECT: req.webtaskContext.secrets.TFS_PROJECT,
+        TFS_INSTANCE: req.webtaskContext.secrets.TFS_INSTANCE,
+        TFS_COLLECTION: req.webtaskContext.secrets.TFS_COLLECTION,
+        TFS_USERNAME: req.webtaskContext.secrets.TFS_USERNAME,
+        TFS_TOKEN: req.webtaskContext.secrets.TFS_TOKEN,
         WT_URL: req.webtaskContext.secrets.WT_URL
       });
 
