@@ -31,7 +31,8 @@ export default connectContainer(class extends Component {
 
   runDeployment = (sha) => {
     this.props.runDeployment(sha)
-      .then(() => this.props.fetchDeployments());
+      .then(() => this.props.fetchDeployments())
+      .catch(() => this.props.fetchDeployments());
   }
 
   render() {

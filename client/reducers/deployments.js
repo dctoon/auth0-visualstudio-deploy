@@ -23,7 +23,7 @@ export const deployments = createReducer(fromJS(initialState), { // eslint-disab
   [constants.FETCH_DEPLOYMENTS_PENDING]: (state) =>
     state.merge({
       loading: true,
-      records: [ ]
+      records: []
     }),
   [constants.FETCH_DEPLOYMENTS_REJECTED]: (state, action) =>
     state.merge({
@@ -35,7 +35,7 @@ export const deployments = createReducer(fromJS(initialState), { // eslint-disab
     return state.merge({
       loading: false,
       records: state.get('records').concat(fromJS(data.map(deployment => {
-        deployment.date_relative = moment(deployment.date).fromNow();
+        deployment.date_relative = moment(deployment.date).fromNow(); // eslint-disable-line no-param-reassign
         return deployment;
       })))
     });
@@ -48,7 +48,7 @@ export const deployments = createReducer(fromJS(initialState), { // eslint-disab
   [constants.RUN_DEPLOYMENT_REJECTED]: (state, action) =>
     state.merge({
       loading: false,
-      error: `An error occured while loading the deployments: ${action.errorMessage}`
+      error: `An error occured while running the deployment: ${action.errorMessage}`
     }),
   [constants.RUN_DEPLOYMENT_FULFILLED]: (state) =>
     state.merge({
