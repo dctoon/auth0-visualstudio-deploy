@@ -2,37 +2,53 @@ import _ from 'lodash';
 import path from 'path';
 import Promise from 'bluebird';
 import vsts from 'vso-node-api';
+import request from 'request-promise';
+import { constants, unifyDatabases, unifyScripts } from 'auth0-source-control-extension-tools';
 
 import config from './config';
 import logger from '../lib/logger';
-import * as constants from './constants';
-import request from 'request-promise';
+
 
 /*
  * TFS API connection
  */
-const collectionURL = `https://${config('TFS_INSTANCE')}.visualstudio.com/${config('TFS_COLLECTION')}`;
-const vsCredentials = vsts.getBasicHandler(config('TFS_TOKEN'), '');
-const vsConnection = new vsts.WebApi(collectionURL, vsCredentials);
-const tfvcApi = vsConnection.getQTfvcApi();
+let tfvcApi = null;
+
+const getApi = () => {
+  if (!tfvcApi) {
+    const collectionURL = `https://${config('TFS_INSTANCE')}.visualstudio.com/${config('TFS_COLLECTION')}`;
+    const vsCredentials = vsts.getBasicHandler(config('TFS_TOKEN'), '');
+    const vsConnection = new vsts.WebApi(collectionURL, vsCredentials);
+    tfvcApi = vsConnection.getQTfvcApi();
+  }
+
+  return tfvcApi;
+};
 
 /*
  * Check if a file is part of the rules folder.
  */
-const isRule = (fileName) =>
-fileName.indexOf(`${config('TFS_PATH')}/${constants.RULES_DIRECTORY}/`) === 0;
+const isRule = (file) =>
+file.indexOf(`${config('TFS_PATH')}/${constants.RULES_DIRECTORY}/`) === 0;
 
 /*
  * Check if a file is part of the database folder.
  */
-const isDatabaseConnection = (fileName) =>
-fileName.indexOf(`${config('TFS_PATH')}/${constants.DATABASE_CONNECTIONS_DIRECTORY}/`) === 0;
+const isDatabaseConnection = (file) =>
+file.indexOf(`${config('TFS_PATH')}/${constants.DATABASE_CONNECTIONS_DIRECTORY}/`) === 0;
+
+/*
+ * Check if a file is part of the pages folder.
+ */
+const isPage = (file) =>
+file.indexOf(`${config('TFS_PATH')}/${constants.PAGES_DIRECTORY}/`) === 0
+&& constants.PAGE_NAMES.indexOf(file.split('/').pop()) >= 0;
 
 /*
  * Get the details of a database file script.
  */
 const getDatabaseScriptDetails = (filename) => {
-  const parts = filename.split('/');
+  const parts = filename.replace(`${config('TFS_PATH')}/`, '').split('/');
   if (parts.length === 3 && /\.js$/i.test(parts[2])) {
     const scriptName = path.parse(parts[2]).name;
     if (constants.DATABASE_SCRIPTS.indexOf(scriptName) > -1) {
@@ -50,7 +66,9 @@ const getDatabaseScriptDetails = (filename) => {
  * Only Javascript and JSON files.
  */
 const validFilesOnly = (fileName) => {
-  if (isRule(fileName)) {
+  if (isPage(fileName)) {
+    return true;
+  } else if (isRule(fileName)) {
     return /\.(js|json)$/i.test(fileName);
   } else if (isDatabaseConnection(fileName)) {
     const script = getDatabaseScriptDetails(fileName);
@@ -64,7 +82,7 @@ const validFilesOnly = (fileName) => {
  * Get a flat list of changes and files that need to be added/updated/removed.
  */
 export const hasChanges = (changesetId) =>
-  tfvcApi.getChangesetChanges(changesetId).then(data =>
+  getApi().getChangesetChanges(changesetId).then(data =>
   _.chain(data)
     .map(file => file.item.path)
     .flattenDeep()
@@ -77,22 +95,47 @@ export const hasChanges = (changesetId) =>
 /*
  * Get rules tree.
  */
-const getRulesTree = (project, changesetId) =>
+const getRulesTree = (project) =>
   new Promise((resolve, reject) => {
     try {
-      tfvcApi.getItems(project, `${config('TFS_PATH')}/${constants.RULES_DIRECTORY}`).then(data => {
-        if (!data) {
-          return resolve([]);
-        }
+      getApi().getItems(project, `${config('TFS_PATH')}/${constants.RULES_DIRECTORY}`)
+        .then(data => {
+          if (!data) {
+            return resolve([]);
+          }
 
-        const files = data
-          .filter(f => f.size)
-          .filter(f => validFilesOnly(f.path));
+          const files = data
+            .filter(f => f.size)
+            .filter(f => validFilesOnly(f.path));
 
-        return resolve(files);
-      }).catch(e => reject(e));
+          return resolve(files);
+        })
+        .catch(e => reject(e));
+    } catch (e) {
+      reject(e);
     }
-    catch (e) {
+  });
+
+/*
+ * Get pages tree.
+ */
+const getPagesTree = (project) =>
+  new Promise((resolve, reject) => {
+    try {
+      getApi().getItems(project, `${config('TFS_PATH')}/${constants.PAGES_DIRECTORY}`)
+        .then(data => {
+          if (!data) {
+            return resolve([]);
+          }
+
+          const files = data
+            .filter(f => f.size)
+            .filter(f => validFilesOnly(f.path));
+
+          return resolve(files);
+        })
+        .catch(e => reject(e));
+    } catch (e) {
       reject(e);
     }
   });
@@ -100,10 +143,10 @@ const getRulesTree = (project, changesetId) =>
 /*
  * Get connection files for one db connection
  */
-const getConnectionTreeByPath = (project, branch, path) =>
+const getConnectionTreeByPath = (project, branch, filePath) =>
   new Promise((resolve, reject) => {
     try {
-      tfvcApi.getItems(project, path).then(data => {
+      getApi().getItems(project, filePath).then(data => {
         if (!data) {
           return resolve([]);
         }
@@ -125,24 +168,25 @@ const getConnectionTreeByPath = (project, branch, path) =>
 const getConnectionsTree = (project, branch) =>
   new Promise((resolve, reject) => {
     try {
-      tfvcApi.getItems(project, `${config('TFS_PATH')}/${constants.DATABASE_CONNECTIONS_DIRECTORY}`).then(data => {
-        if (!data) {
-          return resolve([]);
-        }
+      getApi().getItems(project, `${config('TFS_PATH')}/${constants.DATABASE_CONNECTIONS_DIRECTORY}`)
+        .then(data => {
+          if (!data) {
+            return resolve([]);
+          }
 
-        const subdirs = data.filter(f => !f.size);
-        const promisses = [];
-        let files = [];
+          const subdirs = data.filter(f => f.isFolder && f.path !== `${config('TFS_PATH')}/${constants.DATABASE_CONNECTIONS_DIRECTORY}`);
+          const promisses = [];
+          let files = [];
+          subdirs.forEach(subdir => {
+            promisses.push(getConnectionTreeByPath(project, branch, subdir.path).then(tree => {
+              files = files.concat(tree);
+            }));
+          });
 
-        subdirs.forEach(subdir => {
-          promisses.push(getConnectionTreeByPath(project, branch, subdir.path).then(data => {
-            files = files.concat(data);
-          }));
-        });
-
-        Promise.all(promisses)
-          .then(() => resolve(files));
-      }).catch(e => reject(e));
+          return Promise.all(promisses)
+            .then(() => resolve(files));
+        })
+        .catch(e => reject(e));
     } catch (e) {
       reject(e);
     }
@@ -153,14 +197,15 @@ const getConnectionsTree = (project, branch) =>
  */
 const getTree = (project, changesetId) =>
   new Promise((resolve, reject) => {
-    //Getting separate trees for rules and connections, as tfsvc does not provide full (recursive) tree
+    // Getting separate trees for rules and connections, as tfsvc does not provide full (recursive) tree
     const promises = {
       rules: getRulesTree(project, changesetId),
-      connections: getConnectionsTree(project, changesetId)
+      connections: getConnectionsTree(project, changesetId),
+      pages: getPagesTree(project, changesetId)
     };
 
     Promise.props(promises)
-      .then(result => resolve(_.union(result.rules, result.connections)))
+      .then(result => resolve(_.union(result.rules, result.connections, result.pages)))
       .catch(e => reject(e));
   });
 
@@ -168,13 +213,13 @@ const getTree = (project, changesetId) =>
  * Download a single file.
  */
 const downloadFile = (file, changesetId) => {
-  const version = parseInt(changesetId) || null;
+  const version = parseInt(changesetId, 10) || null;
   const versionString = (version) ? `&version=${version}` : '';
   const auth = new Buffer(`${config('TFS_USERNAME')}:${config('TFS_TOKEN')}`).toString('base64');
 
   const options = {
     headers: {
-      'Authorization': `Basic ${auth}`,
+      Authorization: `Basic ${auth}`,
       'Content-Type': 'text/html'
     },
     uri: `https://${config('TFS_INSTANCE')}.visualstudio.com/${config('TFS_COLLECTION')}/_apis/tfvc/items?path=${file.path}${versionString}&api-version=1.0`
@@ -193,7 +238,8 @@ const downloadFile = (file, changesetId) => {
  */
 const downloadRule = (changesetId, ruleName, rule) => {
   const currentRule = {
-    ...rule,
+    script: false,
+    metadata: false,
     name: ruleName
   };
 
@@ -202,14 +248,16 @@ const downloadRule = (changesetId, ruleName, rule) => {
   if (rule.script) {
     downloads.push(downloadFile(rule.scriptFile, changesetId)
       .then(file => {
-        currentRule.script = file.contents;
+        currentRule.script = true;
+        currentRule.scriptFile = file.contents;
       }));
   }
 
   if (rule.metadata) {
     downloads.push(downloadFile(rule.metadataFile, changesetId)
       .then(file => {
-        currentRule.metadata = JSON.parse(file.contents);
+        currentRule.metadata = true;
+        currentRule.metadataFile = JSON.parse(file.contents);
       }));
   }
 
@@ -238,7 +286,7 @@ const getRules = (changesetId, files) => {
   });
 
   // Download all rules.
-  return Promise.map(Object.keys(rules), (ruleName) => downloadRule(changesetId, ruleName, rules[ruleName]), {concurrency: 2});
+  return Promise.map(Object.keys(rules), ruleName => downloadRule(changesetId, ruleName, rules[ruleName]), { concurrency: 2 });
 };
 
 /*
@@ -256,8 +304,8 @@ const downloadDatabaseScript = (changesetId, databaseName, scripts) => {
     downloads.push(downloadFile(script, changesetId)
       .then(file => {
         database.scripts.push({
-          stage: script.name,
-          contents: file.contents
+          name: script.name,
+          scriptFile: file.contents
         });
       })
     );
@@ -270,7 +318,7 @@ const downloadDatabaseScript = (changesetId, databaseName, scripts) => {
 /*
  * Get all database scripts.
  */
-const getDatabaseScripts = (repositoryId, branch, files) => {
+const getDatabaseScripts = (changesetId, files) => {
   const databases = {};
 
   _.filter(files, f => isDatabaseConnection(f.path)).forEach(file => {
@@ -285,7 +333,63 @@ const getDatabaseScripts = (repositoryId, branch, files) => {
     }
   });
 
-  return Promise.map(Object.keys(databases), (databaseName) => downloadDatabaseScript(branch, databaseName, databases[databaseName]), {concurrency: 2});
+  return Promise.map(Object.keys(databases), (databaseName) => downloadDatabaseScript(changesetId, databaseName, databases[databaseName]), { concurrency: 2 });
+};
+
+/*
+ * Download a single page script.
+ */
+const downloadPage = (changesetId, pageName, page) => {
+  const downloads = [];
+  const currentPage = {
+    metadata: false,
+    name: pageName
+  };
+
+  if (page.file) {
+    downloads.push(downloadFile(page.file, changesetId)
+      .then(file => {
+        currentPage.htmlFile = file.contents;
+      }));
+  }
+
+
+  if (page.meta_file) {
+    downloads.push(downloadFile(page.meta_file, changesetId)
+      .then(file => {
+        currentPage.metadata = true;
+        currentPage.metadataFile = file.contents;
+      }));
+  }
+
+  return Promise.all(downloads).then(() => currentPage);
+};
+
+/*
+ * Get all pages.
+ */
+const getPages = (changesetId, files) => {
+  const pages = {};
+
+  // Determine if we have the script, the metadata or both.
+  _.filter(files, f => isPage(f.path)).forEach(file => {
+    const pageName = path.parse(file.path).name;
+    const ext = path.parse(file.path).ext;
+    pages[pageName] = pages[pageName] || {};
+
+    if (ext !== '.json') {
+      pages[pageName].file = file;
+      pages[pageName].sha = file.sha;
+      pages[pageName].path = file.path;
+    } else {
+      pages[pageName].meta_file = file;
+      pages[pageName].meta_sha = file.sha;
+      pages[pageName].meta_path = file.path;
+    }
+  });
+
+  return Promise.map(Object.keys(pages), (pageName) =>
+    downloadPage(changesetId, pageName, pages[pageName]), { concurrency: 2 });
 };
 
 /*
@@ -295,18 +399,24 @@ export const getChanges = (project, changesetId) =>
   new Promise((resolve, reject) => {
     getTree(project, changesetId)
       .then(files => {
-        logger.debug(`Files in tree: ${JSON.stringify(files.map(file => ({name: file.path, id: file.id})), null, 2)}`);
+        logger.debug(`Files in tree: ${JSON.stringify(files.map(file => ({
+          name: file.path,
+          id: file.id
+        })), null, 2)}`);
 
         const promises = {
           rules: getRules(changesetId, files),
-          databases: getDatabaseScripts(changesetId, files)
+          databases: getDatabaseScripts(changesetId, files),
+          pages: getPages(changesetId, files)
         };
 
         Promise.props(promises)
-          .then((result) => resolve({
-            rules: result.rules,
-            databases: result.databases
-          }));
+          .then((result) =>
+            resolve({
+              rules: unifyScripts(result.rules),
+              databases: unifyDatabases(result.databases),
+              pages: unifyScripts(result.pages)
+            }));
       })
       .catch(e => reject(e));
   });

@@ -1,13 +1,12 @@
-import { ArgumentError, UnauthorizedError } from '../errors';
+import { UnauthorizedError } from 'auth0-extension-tools';
 
-const parse = ({ notificationId = '', resource = {}, eventType = '' }) => {
-  return {
+const parse = ({ notificationId = '', resource = {}, eventType = '' }) =>
+  ({
     id: notificationId,
     event: eventType,
     changeset: resource.changesetId,
     user: resource.checkedInBy.uniqueName
-  };
-};
+  });
 
 module.exports = (secret) => (req, res, next) => {
   if (!secret || secret.length === 0) {

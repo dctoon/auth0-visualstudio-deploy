@@ -20,7 +20,7 @@ export default class WebhookSettings extends Component {
   };
 
   render() {
-    const { payloadUrl, secret, contentType, repository, branch, prefix } = this.props;
+    const { payloadUrl, secret, repository, branch, prefix } = this.props;
 
     return (
       <div>

@@ -11,7 +11,7 @@ const initialState = {
   activeRecord: null
 };
 
-export const deployments = createReducer(fromJS(initialState), {
+export const deployments = createReducer(fromJS(initialState), { // eslint-disable-line import/prefer-default-export
   [constants.OPEN_DEPLOYMENT]: (state, action) =>
     state.merge({
       activeRecord: action.payload.deployment
@@ -28,7 +28,7 @@ export const deployments = createReducer(fromJS(initialState), {
   [constants.FETCH_DEPLOYMENTS_REJECTED]: (state, action) =>
     state.merge({
       loading: false,
-      error: `An error occured while loading the deployments: ${action.payload.data && action.payload.data.message || action.payload.statusText}`
+      error: `An error occured while loading the deployments: ${action.errorMessage}`
     }),
   [constants.FETCH_DEPLOYMENTS_FULFILLED]: (state, action) => {
     const { data } = action.payload;
@@ -38,7 +38,7 @@ export const deployments = createReducer(fromJS(initialState), {
         deployment.date_relative = moment(deployment.date).fromNow();
         return deployment;
       })))
-    })
+    });
   },
   [constants.RUN_DEPLOYMENT_PENDING]: (state) =>
     state.merge({
@@ -48,11 +48,10 @@ export const deployments = createReducer(fromJS(initialState), {
   [constants.RUN_DEPLOYMENT_REJECTED]: (state, action) =>
     state.merge({
       loading: false,
-      error: `An error occured while loading the deployments: ${action.payload.data && action.payload.data.message || action.payload.statusText}`
+      error: `An error occured while loading the deployments: ${action.errorMessage}`
     }),
-  [constants.RUN_DEPLOYMENT_FULFILLED]: (state, action) => {
-    return state.merge({
+  [constants.RUN_DEPLOYMENT_FULFILLED]: (state) =>
+    state.merge({
       loading: false
-    });
-  }
+    })
 });

@@ -1,8 +1,8 @@
-import { ArgumentError, UnauthorizedError } from '../errors';
+import { ArgumentError, UnauthorizedError } from 'auth0-extension-tools';
 
 const parse = ({ notificationId = '', resource = {}, eventType = '' }) => {
   const refParts = resource.refUpdates[0].name.split('/');
-  const checkout_sha = resource.refUpdates[0].newObjectId;
+  const checkoutSha = resource.refUpdates[0].newObjectId;
 
   return {
     id: notificationId,
@@ -12,7 +12,7 @@ const parse = ({ notificationId = '', resource = {}, eventType = '' }) => {
     commits: resource.commits,
     repository: resource.repository.name,
     user: resource.pushedBy.uniqueName,
-    sha: checkout_sha
+    sha: checkoutSha
   };
 };
 
