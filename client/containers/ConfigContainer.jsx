@@ -42,7 +42,7 @@ export default connectContainer(class extends Component {
         <div className="row">
           <div className="col-xs-12">
             <Error message={error} />
-            <WebhookSettings payloadUrl={`${window.config.BASE_URL}/webhooks/deploy/${record.secret}`} repository={record.repository} branch={record.branch} />
+            <WebhookSettings secret={record.secret} payloadUrl={`${window.config.BASE_URL}/webhooks/deploy`} repository={record.repository} branch={record.branch} prefix={record.prefix} />
           </div>
         </div>
         <div className="row">
