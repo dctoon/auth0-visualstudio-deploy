@@ -1,8 +1,8 @@
 import express from 'express';
+import { middlewares } from 'auth0-extension-express-tools';
 
 import config from '../lib/config';
 import deploy from '../lib/deploy';
-
 import { hasChanges as hasGitChanges } from '../lib/tfs-git';
 import { hasChanges as hasTfvcChanges } from '../lib/tfs-tfvc';
 import { gitWebhook, tfvcWebhook } from '../lib/middlewares';
@@ -12,6 +12,12 @@ export default (storage) => {
   const webhooks = express.Router(); // eslint-disable-line new-cap
   const gitRoute = config('TFS_TYPE') === 'git' ? '/deploy' : '/deploy/git';
   const tfvcRoute = config('TFS_TYPE') === 'tfvc' ? '/deploy' : '/deploy/tfvc';
+
+  webhooks.use(middlewares.managementApiClient({
+    domain: config('AUTH0_DOMAIN'),
+    clientId: config('AUTH0_CLIENT_ID'),
+    clientSecret: config('AUTH0_CLIENT_SECRET')
+  }));
 
   webhooks.post(gitRoute, gitWebhook(tfsSecret), (req, res) => {
     const { id, repository_id, branch, commits, repository, user, sha } = req.webhook;
